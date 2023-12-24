@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LED Armatür Maliyet Analizi</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; 
+            min-height: 100vh; 
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #enerjisan-logo {
+            max-width: 50%; 
+            height: auto;
+            cursor: pointer;
+        }
+
+        h1 {
+            color: #ffcc00;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 20px;
+            font-size: 23px;
+            text-align: center;
+        }
+
+        input {
+            margin-bottom: 20px;
+            padding: 8px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        button {
+            background-color: #ffcc00;
+            color: black;
+            padding: 15px;
+            border: black;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 15px;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: #e8df58;
+        }
+
+        #output {
+            margin-top: 20px;
+            font-size: 18px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <img id="enerjisan-logo" src="enerji-sa-1-1170x877.png" alt="Enerjisan Logo" onclick="goToEnerjisanHomepage()">
+    </header>
+    <h1>LED Armatür Maliyet Analizi</h1>
+    <div id="form-container">
+        <div id="step-1" style="text-align: center;">
+            <label>Aydınlatma Düzeneği</label>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="chooseOption(1)" style="flex: 1;">Sağdan Tek Taraflı</button>
+                <button onclick="chooseOption(2)" style="flex: 1;">Refüjden Çift Konsollu</button>
+            </div>
+        </div>
+        
+
+
+        <div id="step-2" style="display: none; text-align: center;">
+            <label for="yol_uzunlugu">Yol Uzunluğu (metre)</label>
+            <input type="number" id="yol_uzunlugu">
+            <br>
+            <button onclick="prevStep(1)">Önceki</button>
+            <button onclick="nextStep(3)">Sonraki</button>
+        </div>
+
+        <div id="step-3" style="display: none; text-align: center;">
+            <label for="aciklikybsb">YBSB Armatür Mesafesi (metre)</label>
+            <input type="number" id="aciklikybsb">
+            <br>
+            <button onclick="prevStep(2)">Önceki</button>
+            <button onclick="nextStep(4)">Sonraki</button>
+        </div>
+
+        <div id="step-4" style="display: none; text-align: center;">
+            <label for="aciklikled">LED Armatür Mesafesi (metre)</label>
+            <input type="number" id="aciklikled">
+            <br>
+            <button onclick="prevStep(3)">Önceki</button>
+            <button onclick="nextStep(5)">Sonraki</button>
+        </div>
+
+        <div id="step-5" style="display: none; text-align: center;">
+            <label for="led_w">LED Armatür Watt Değeri</label>
+            <input type="number" id="led_w">
+            <br>
+            <button onclick="prevStep(4)">Önceki</button>
+            <button onclick="nextStep(6)">Sonraki</button>
+        </div>
+
+        <div id="step-6" style="display: none; text-align: center;">
+            <label for="led_ucret">LED Armatür Ücreti (TL)</label>
+            <input type="number" id="led_ucret">
+            <br>
+            <button onclick="prevStep(5)">Önceki</button>
+            <button onclick="nextStep(7)">Sonraki</button>
+        </div>
+
+        <div id="step-7" style="display: none; text-align: center;">
+            <label for="watt">YBSB Armatür Watt Değeri</label>
+            <input type="number" id="watt">
+            <br>
+            <button onclick="prevStep(6)">Önceki</button>
+            <button onclick="nextStep(8)">Sonraki</button>
+        </div>
+
+        <div id="step-8" style="display: none; text-align: center;">
+            <label for="armatur_ucreti">YBSB Armatür Ücreti (TL)</label>
+            <input type="number" id="armatur_ucreti">
+            <br>
+            <button onclick="prevStep(7)">Önceki</button>
+            <button onclick="nextStep(9)">Sonraki</button>
+        </div>
+
+        <div id="step-9" style="display: none; text-align: center;">
+            <label for="direk_yuksekligi">Direk Yüksekliği</label>
+            <button onclick="setDirekYuksekligiAndCalculate(8)">8 metre</button>
+            <button onclick="setDirekYuksekligiAndCalculate(9)">9 metre</button>
+            <button onclick="setDirekYuksekligiAndCalculate(10)">10 metre</button>
+            <br>
+            <button onclick="prevStep(8)" style="margin-top: 20px;">Önceki</button>
+        </div>
+
+        <div id="output" style="display: none;"></div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let selectedOption = 0;
+        let selectedDirekYuksekligi = 0;
+
+        function chooseOption(option) {
+            selectedOption = option;
+            nextStep(2);
+        }
+
+        function setDirekYuksekligi(value) {
+            selectedDirekYuksekligi = value;
+        }
+
+        function setDirekYuksekligiAndCalculate(value) {
+            selectedDirekYuksekligi = value;
+            calculateLEDAmortization();
+        }
+
+        function nextStep(next) {
+            document.getElementById("step-" + currentStep).style.display = "none";
+
+            if (currentStep === 9) {
+                calculateLEDAmortization(selectedDirekYuksekligi);
+            } else {
+                currentStep = next;
+                document.getElementById("step-" + currentStep).style.display = "block";
+            }
+        }
+
+        function prevStep(prev) {
+            document.getElementById("step-" + currentStep).style.display = "none";
+            currentStep = prev;
+            document.getElementById("step-" + currentStep).style.display = "block";
+        }
+
+        function calculateLEDAmortization(direkYuksekligi) {
+            let armatur_sayisi = selectedOption;
+            let yol_uzunlugu = parseInt(document.getElementById("yol_uzunlugu").value);
+            let aciklikybsb = parseInt(document.getElementById("aciklikybsb").value);
+            let aciklikled = parseInt(document.getElementById("aciklikled").value);
+            let led_w = parseInt(document.getElementById("led_w").value);
+            let led_ucret = parseInt(document.getElementById("led_ucret").value);
+            let watt = parseInt(document.getElementById("watt").value);
+            let armatur_ucreti = parseInt(document.getElementById("armatur_ucreti").value);
+            let direk_yuksekligi = selectedDirekYuksekligi;
+
+            let armatur_sayisiybsb = Math.floor(yol_uzunlugu / aciklikybsb) + 1;
+            let armatur_sayisiled = Math.floor(yol_uzunlugu / aciklikled) + 1;
+            let enerji = watt * 10 * 360 / 1000 * 3.89 * armatur_sayisiybsb * armatur_sayisi;
+            let bozuk = Math.floor(armatur_sayisiybsb * 0.012);
+            let ampul_yillik = bozuk * 450;
+            let yillik = enerji + ampul_yillik;
+            let ybsbdegisim = armatur_sayisiybsb * 2100;
+            let led_maliyet = armatur_sayisiled * led_ucret;
+
+            let direk_ucreti;
+
+            if (direk_yuksekligi == 8) {
+                direk_ucreti = armatur_sayisiled * 2740;
+            } else if (direk_yuksekligi == 9) {
+                direk_ucreti = armatur_sayisiled * 3570;
+            } else if (direk_yuksekligi == 10) {
+                direk_ucreti = armatur_sayisiled * 4180;
+            } else {
+                alert("Hata: Geçersiz direk yüksekliği");
+                return;
+            }
+
+            let total_led = direk_ucreti + led_maliyet;
+            let led_yillik_enerji_ucreti = led_w * 10 * 360 / 1000 * 3.89 * armatur_sayisiled * armatur_sayisi;
+            let led_bozulan = Math.floor(armatur_sayisiled * 0.007 * 2);
+            let yillik_bozulan_led_ucreti = led_bozulan * led_ucret + 2000;
+            let led_yillik = led_yillik_enerji_ucreti + yillik_bozulan_led_ucreti;
+            let yillik_sodyum_buharli_ucreti = 0;
+            let yatirim_yili = 0;
+
+            while (total_led >= yillik_sodyum_buharli_ucreti) {
+                if (yatirim_yili % 6 == 5) {
+                    yillik_sodyum_buharli_ucreti += ybsbdegisim;
+                }
+
+                yillik_sodyum_buharli_ucreti += yillik;
+
+                total_led += led_yillik;
+
+                yatirim_yili++;
+
+                if (yatirim_yili % 20 == 0) {
+                    led_yillik += armatur_sayisiled * led_ucret * 0.5;
+                }
+
+                ampul_yillik = ampul_yillik * 1.04;
+                yillik_bozulan_led_ucreti = yillik_bozulan_led_ucreti * 0.96;
+                led_yillik = led_yillik_enerji_ucreti + yillik_bozulan_led_ucreti;
+                yillik = enerji + ampul_yillik;
+            }
+
+            let result = "LED armatürün kurulum ücretini " + yatirim_yili + " yılda amorti edebilirsiniz.<br><br>";
+            result += "LED armatürlerin amorti ardından ortalama olarak yıllık kazancı = " + (yillik - led_yillik + 800000).toFixed(2) + " TL";
+
+            document.getElementById("output").innerHTML = result;
+            document.getElementById("output").style.display = "block";
+        }
+
+        function goToEnerjisanHomepage() {
+            window.location.href = "https://www.enerjisa.com.tr/";
+        }
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                simulateButtonClick();
+            }
+            
+        });
+
+        function simulateButtonClick() {
+            var nextButton = document.querySelector("#step-" + currentStep + " button:last-child");
+            if (nextButton) {
+                nextButton.click();
+            } else {
+                
+            }
+      
+        
+        }
+    </script>
+    <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+        <div class="col-md-4 d-flex align-items-center">
+            <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
+                <svg class="bi" width="30" height="24">
+                    <use xlink:href="#bootstrap"></use>
+                </svg>
+            </a>
+            <div style="text-align: center; margin-bottom: 10px;">
+                <img src="the-lux_logo.jpg" alt="THE-LUX Logo" style="max-width: 18%; height: auto; margin-top: -18px; margin-left: auto; margin-right: auto;">
+            </div>
+            
+            
+            
+              
+              
+        </div>
+    </footer>
+</body>
+
+</html>
